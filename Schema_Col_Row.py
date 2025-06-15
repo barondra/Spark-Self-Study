@@ -25,8 +25,8 @@ if __name__ == "__main__":
     blogs_df.show()
 
     # Print the schema of the DataFrame
-    print(blogs_df.printSchema())
-    print(blogs_df.schema)
+    print(blogs_df.printSchema()) # Print the schema in a tree format
+    print(blogs_df.schema) # Print the schema object definition
 
     # Stop the Spark session
     spark.stop()
