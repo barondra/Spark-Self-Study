@@ -43,7 +43,13 @@ if __name__ == "__main__":
     blogs_df.sort(col("Id").desc()).show()
     blogs_df.orderBy(col("Id").desc()).show()
     # blogs_df.sort($"Id".desc()).show()  # Using dollar sign notation for Scala Spark
-        
+
+    # create a new row and add it to the DataFrame    
+    from pyspark.sql import Row
+    blog_row = Row(Id=7, First="New", Last="Author", Url="https://www.newauthor.com", Published="2023-10-07", Hits=500, Campaigns=["NewCampaign"])
+    blogs_df = blogs_df.union(spark.createDataFrame([blog_row], schemaDDL))
+    # Show the updated DataFrame with the new row
+    blogs_df.show()
 
     # Stop the Spark session
     spark.stop()
