@@ -1,7 +1,5 @@
 from pyspark.sql import SparkSession
 
-
-
 # Define schema for our data using DDL
 schemaDDL = "`Id` INT, `First` STRING, `Last` STRING, `Url` STRING, `Published` STRING, `Hits` INT, `Campaigns` ARRAY<STRING>"
 
@@ -27,6 +25,25 @@ if __name__ == "__main__":
     # Print the schema of the DataFrame
     print(blogs_df.printSchema()) # Print the schema in a tree format
     print(blogs_df.schema) # Print the schema object definition
+
+    # Use an expression to compute big hitters (hits > 200)
+    from pyspark.sql.functions import expr
+    blogs_df.withColumn("Big Hitters", (expr("Hits > 200"))).show()
+
+    # Concatenate three columns, create a new column, and select it
+    from pyspark.sql.functions import concat, col
+    blogs_df.withColumn("AuthorsId", (concat(expr("First"), expr("Last"), expr("Id")))).select(col("AuthorsId")).show()
+
+    # These statements return the same value, showing that expr is the same as col method call
+    blogs_df.select(expr("Hits")).show(2)
+    blogs_df.select(col("Hits")).show(2)
+    blogs_df.select("Hits").show(2)
+
+    # Sort by column "Id" in descending order
+    blogs_df.sort(col("Id").desc()).show()
+    blogs_df.orderBy(col("Id").desc()).show()
+    # blogs_df.sort($"Id".desc()).show()  # Using dollar sign notation for Scala Spark
+        
 
     # Stop the Spark session
     spark.stop()
