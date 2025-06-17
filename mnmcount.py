@@ -43,3 +43,5 @@ if __name__ == "__main__":
     # show the resulting aggregation for California
     ca_count_mnm_df.show(n=10, truncate=False)
 
+    # stop the SparkSession
+    spark.stop()

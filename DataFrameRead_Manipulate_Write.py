@@ -1,6 +1,7 @@
 from pyspark.sql.types import *
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import *
+import pyspark.sql.functions as F
 import os
 import shutil
 
@@ -48,20 +49,20 @@ fire_df.show(5)  # Display the first 5 rows of the DataFrame
 print(fire_df.printSchema())  # Print the schema in a tree format
 #print(fire_df.schema)  # Print the schema object definition
 
-# some basic transformations and actions
+# Incidents that are not medical incidents
 few_fire_df = (fire_df
                .select("IncidentNumber", "AvailableDtTm", "CallType")
                .where(col("CallType") != "Medical Incident"))
 few_fire_df.show(5, truncate=False)  # Display the first 5 rows of the filtered DataFrame
 
-# return how many distinct CallTypes were recorded as the causes of the fire calls
+# How many distinct CallTypes were recorded as the causes of the fire calls
 (fire_df
     .select("CallType")
     .where(col("CallType").isNotNull())  # Filter out null CallTypes
     .agg(count_distinct("CallType").alias("DistinctCallTypes"))
     .show()) # Display the count of distinct CallTypes
 
-# rename columns in the DataFrame
+# Rename columns in the DataFrame
 new_fire_df = fire_df.withColumnRenamed("Delay", "ResponseDelayinMins")
 (new_fire_df
     .select("IncidentNumber", "AvailableDtTm", "CallType", "ResponseDelayinMins")
@@ -76,9 +77,36 @@ fire_ts_df = (new_fire_df
               .withColumn("AvailableDtTS", to_timestamp(col("AvailableDtTm"), "MM/dd/yyyy hh:mm:ss a"))
               .drop("AvailableDtTm"))
 
+# select and show the transformed DataFrame with timestamp columns
 (fire_ts_df
     .select("IncidentDate", "OnWatchDate", "AvailableDtTS")
     .show(5, truncate=False))
+
+# explore data further based on the timestamp columns
+(fire_ts_df
+    .select(year("IncidentDate").alias("IncidentYear"))
+    .distinct()
+    .orderBy("IncidentYear")
+    .show())
+
+
+# Grouping: What were the most common CallTypes?
+(fire_ts_df
+    .select("CallType")
+    .where(col("CallType").isNotNull())  # Filter out null CallTypes
+    .groupBy("CallType")
+    .count()
+    .orderBy("count", ascending=False)
+    .show(10, truncate=False)  # Display the top 10 most common CallTypes
+ )
+
+# Compute sum of alarms, average response time, minimum and maximum response time
+(fire_ts_df
+    .select(F.sum("NumAlarms").alias("TotalAlarms"),
+            F.avg("ResponseDelayinMins").alias("AvgResponseDelay"),
+            F.min("ResponseDelayinMins").alias("MinResponseDelay"),
+            F.max("ResponseDelayinMins").alias("MaxResponseDelay"))
+    .show())  # Display the computed statistics
 
 # to save as Parquet file
 parquet_path = "./sf-few-fire-calls.parquet"
@@ -91,3 +119,6 @@ parquet_table = "sf_few_fire_calls_parquet_table"
 if os.path.exists("spark-warehouse/" + parquet_table):
     shutil.rmtree("spark-warehouse/" + parquet_table)
 few_fire_df.write.format("parquet").saveAsTable(parquet_table)
+
+# stop the Spark session
+spark.stop()
