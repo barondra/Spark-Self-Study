@@ -34,16 +34,16 @@ spark.createDataFrame(spark.catalog.listTables("global_temp"), schema="`name` ST
 # Create a global temporary view using SQL queries, extracting data from script SparkSQL2_Database_&_Tables.py
 try:
     spark.sql("""
-        CREATE OR REPLACE GLOBAL TEMP VIEW SFO_global_tmp_view AS
-        SELECT date, delay, distance, origin, destination
-        FROM unmanaged_us_delay_flights_tbl
-        WHERE origin = 'SFO'
-    """)
-    spark.sql("""
         CREATE OR REPLACE TEMP VIEW JFK_tmp_view AS
         SELECT date, delay, distance, origin, destination
         FROM unmanaged_us_delay_flights_tbl
         WHERE origin = 'JFK'
+    """)
+    spark.sql("""
+        CREATE OR REPLACE GLOBAL TEMP VIEW SFO_global_tmp_view AS
+        SELECT date, delay, distance, origin, destination
+        FROM unmanaged_us_delay_flights_tbl
+        WHERE origin = 'SFO'
     """)
 except Exception as e:
     print("Error creating views:", e)
@@ -60,23 +60,31 @@ spark.createDataFrame(spark.catalog.listTables("global_temp"), schema="`name` ST
 
 # Alternatively, we can create a global temporary view using DataFrame API
 try:
+    jfk_df = spark.sql("SELECT date,delay,distance,origin,destination FROM unmanaged_us_delay_flights_tbl WHERE origin = 'JFK'")
+    jfk_df.createOrReplaceTempView("JFK_tmp_view")
+
     sfo_df = spark.sql("SELECT date,delay,distance,origin,destination FROM unmanaged_us_delay_flights_tbl WHERE origin = 'SFO'")
     sfo_df.createOrReplaceGlobalTempView("SFO_global_tmp_view")
 
-    jfk_df = spark.sql("SELECT date,delay,distance,origin,destination FROM unmanaged_us_delay_flights_tbl WHERE origin = 'JFK'")
-    jfk_df.createOrReplaceTempView("JFK_tmp_view")
 except Exception as e:
     print("Error creating views:", e)
 finally:
     print("Global temporary view SFO_global_tmp_view and session-scope temporary view JFK_tmp_view created or replaced successfully.")
 
-# queries accessing the global temporary view must use the global_temp database
-print("\nQuerying global temporary view SFO_global_tmp_view:")
-spark.sql("SELECT * FROM global_temp.SFO_global_tmp_view").show()
 
-# by contrast, queries accessing the NOT-global temporary view does not require the prefix
+# spark catalog list column
+print("\nColumns in session-scope temporary view JFK_tmp_view:")
+spark.createDataFrame(spark.catalog.listColumns("JFK_tmp_view"), schema="`name` STRING, `description` STRING, `datatype` STRING, `nullable` BOOLEAN, `isPartition` BOOLEAN, `isBucket` BOOLEAN, `isCluster` BOOLEAN").show()
+print("\nColumns in global temporary view SFO_global_tmp_view:")
+spark.createDataFrame(spark.catalog.listColumns("global_temp.SFO_global_tmp_view"), schema="`name` STRING, `description` STRING, `datatype` STRING, `nullable` BOOLEAN, `isPartition` BOOLEAN, `isBucket` BOOLEAN, `isCluster` BOOLEAN").show()
+
+# Queries accessing the session-scope temporary view does not require the prefix
 print("\nQuerying session-scope temporary view JFK_tmp_view:")
 spark.sql("SELECT * FROM JFK_tmp_view").show()
+
+# by contrast, queries accessing the global-scope temporary view must use the global_temp database
+print("\nQuerying global temporary view SFO_global_tmp_view:")
+spark.sql("SELECT * FROM global_temp.SFO_global_tmp_view").show()
 
 # End session
 spark.stop()
