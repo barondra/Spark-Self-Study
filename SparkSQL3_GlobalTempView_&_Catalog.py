@@ -1,4 +1,4 @@
-from pyspark.sql import SparkSession, Row
+from pyspark.sql import SparkSession
 
 # Create a Spark Session
 spark = (SparkSession
@@ -78,13 +78,15 @@ spark.createDataFrame(spark.catalog.listColumns("JFK_tmp_view"), schema="`name` 
 print("\nColumns in global temporary view SFO_global_tmp_view:")
 spark.createDataFrame(spark.catalog.listColumns("global_temp.SFO_global_tmp_view"), schema="`name` STRING, `description` STRING, `datatype` STRING, `nullable` BOOLEAN, `isPartition` BOOLEAN, `isBucket` BOOLEAN, `isCluster` BOOLEAN").show()
 
-# Queries accessing the session-scope temporary view does not require the prefix
-print("\nQuerying session-scope temporary view JFK_tmp_view:")
-spark.sql("SELECT * FROM JFK_tmp_view").show()
+# Accessing the session-scope temporary view does not require the prefix
+print("\nAccesing session-scope temporary view JFK_tmp_view:")
+# spark.sql("SELECT * FROM JFK_tmp_view").show() # using SQL queries
+spark.table("JFK_tmp_view").show() # using DataFrame API
 
-# by contrast, queries accessing the global-scope temporary view must use the global_temp database
-print("\nQuerying global temporary view SFO_global_tmp_view:")
-spark.sql("SELECT * FROM global_temp.SFO_global_tmp_view").show()
+# by contrast, to access the global-scope temporary view must use the global_temp database
+print("\nAccessing global temporary view SFO_global_tmp_view:")
+# spark.sql("SELECT * FROM global_temp.SFO_global_tmp_view").show() # using SQL queries
+spark.table("global_temp.SFO_global_tmp_view").show() # using DataFrame API
 
 # End session
 spark.stop()

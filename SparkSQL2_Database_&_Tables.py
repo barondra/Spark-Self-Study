@@ -15,12 +15,14 @@ spark.sql("SHOW DATABASES").show()
 
 # Create a database
 try:
+    print("Deleting database learn_spark_db...")
     spark.sql("DROP DATABASE learn_spark_db CASCADE")
 except Exception:
     print("Database does not exist, creating a new one.")    
     spark.sql("CREATE DATABASE learn_spark_db")
 finally:
     spark.sql("USE learn_spark_db")
+    print("Using database learn_spark_db")
 
 # Create a managed table using SQL queries 
 # good for data that is generated or processed within Spark and not shared with other systems
@@ -41,11 +43,9 @@ spark.sql("""CREATE TABLE unmanaged_us_delay_flights_tbl (
 # Show the tables in the current database
 spark.sql("""SHOW TABLES""").show()
 
-# Show the data in the table
+# Show the data in the table using SQL queries
 spark.sql("""SELECT * FROM managed_us_delay_flights_tbl""").show()
 spark.sql("""SELECT * FROM unmanaged_us_delay_flights_tbl""").show()
-
-
 
 # Alternatively, you can create a managed table using DataFrame API
 print("Deleting tables...")
@@ -73,9 +73,9 @@ flights_df.write.saveAsTable("managed_us_delay_flights_tbl")
 # Show the tables in the current database
 spark.sql("""SHOW TABLES""").show()
 
-# Show the data in the table
-spark.sql("""SELECT * FROM managed_us_delay_flights_tbl""").show()
-spark.sql("""SELECT * FROM unmanaged_us_delay_flights_tbl""").show()
+# Show the data in the table using DataFrame API
+spark.table("managed_us_delay_flights_tbl").show()
+spark.table("unmanaged_us_delay_flights_tbl").show()
 
 # Stop the Spark session
 spark.stop()
