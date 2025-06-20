@@ -31,7 +31,7 @@ spark.createDataFrame(spark.catalog.listTables("global_temp"), schema="`name` ST
 # Case we only want to use data with origin of New York (JFK) and San Francisco (SFO)
 # we set SFO as global temporary view and JFK as session-scope temporary view.
 
-# Create a global temporary view using SQL queries, extracting data from script SparkSQL2_Database_&_Tables.py
+# Create a global temporary view using SQL queries, extracting data from tables created in script SparkSQL2_Database_&_Tables.py
 try:
     spark.sql("""
         CREATE OR REPLACE TEMP VIEW JFK_tmp_view AS
