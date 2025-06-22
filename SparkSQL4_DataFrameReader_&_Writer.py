@@ -43,13 +43,13 @@ df = spark.read.format("parquet").load(parquet_file)  # Display the first 5 rows
 df.show()
 
 # Creating Spark SQL TEMP VIEW directly from parquet files (also possible for tables)
-(spark.sql("""CREATE OR REPLACE TEMPORARY VIEW countryOriginDestination_view
+(spark.sql("""CREATE OR REPLACE TEMPORARY VIEW flights_summary_view
            USING parquet
            OPTIONS (path "./flights/summary-data/parquet/2010-summary.parquet/")
            """)
            )
 # and then see the VIEW
-spark.table('countryOriginDestination_view').show(5)
+spark.table('flights_summary_view').show(5)
 
 # Writing DataFrames to Parquet files (in /tmp folder)
 (df.write
@@ -62,7 +62,7 @@ spark.table('countryOriginDestination_view').show(5)
 # # or you can make the df as a managed Spark SQL table by using .saveAsTable() instead of .save()
 (df.write
       .mode("overwrite")
-      .saveAsTable("countryOriginDestination_count_tbl")
+      .saveAsTable("flights_summary_tbl")
       ) 
 
 spark.createDataFrame(spark.catalog.listTables(), schema="`name` STRING, `catalog` STRING, `namespace` ARRAY<STRING>, `description` STRING, `tableType` STRING, `isTemporary` BOOLEAN").show()
