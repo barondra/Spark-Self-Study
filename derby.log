@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
-Mon Jun 23 05:48:46 WIB 2025:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.16.1.1 - (1901046): instance a816c00e-0197-99d4-7052-00000356ea40 
+Tue Jun 24 10:48:12 WIB 2025:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.16.1.1 - (1901046): instance a816c00e-0197-a00c-f18a-000001ab10c0 
 on database directory /Users/macbook/Documents/Learning_Spark/metastore_db with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@1dbd16a6 
 Loaded from file:/Users/macbook/Documents/Learning_Spark/.venv/lib/python3.10/site-packages/pyspark/jars/derby-10.16.1.1.jar
 java.vendor=Homebrew
