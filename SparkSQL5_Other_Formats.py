@@ -160,6 +160,7 @@ finally:
 # binary_path = "/databricks-datasets/learning-spark-v2/cctvVideos/train_images/"
 # binary_files_df = (spark.read.format("binaryFile")
 #                    .option("pathGlobFilter", "*.jpg")
+#                    .option("recursiveFileLookup", "true") # this will ignore partitioning data discovery in directory, however losing label column
 #                    .load(binary_path))
 # binary_files_df.show(5)
 
