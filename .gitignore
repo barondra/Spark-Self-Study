@@ -1,3 +1,5 @@
 .venv/
 ./spark-warehouse/*
 ./metastore_db/*
+.jars/*
+SparkSQL8_JDBC.py
