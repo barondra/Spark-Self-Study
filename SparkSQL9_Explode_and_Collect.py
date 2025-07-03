@@ -3,7 +3,7 @@ from pyspark.sql import SparkSession
 # Create a Spark Session
 spark = (SparkSession
          .builder
-         .appName("SparkSQL_UDF_App")
+         .appName("SparkSQL_Explode&Collect_App")
          .enableHiveSupport()  # Enable Hive support for database and table management
          .getOrCreate()
 ) # pyspark --conf spark.sql.catalogImplementation=hive
